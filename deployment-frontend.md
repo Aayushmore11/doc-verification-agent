@@ -59,11 +59,11 @@ cd /var/www/html/doc-verification-agent/frontend
    nano .env
    ```
 
-3. Update `VITE_API_BASE_URL` to point to your backend API domain (HTTPS is recommended if SSL is enabled, otherwise use HTTP):
+3. Update `VITE_API_BASE_URL` to point to your backend API domain (HTTPS):
    ```env
-   VITE_API_BASE_URL=http://doc-verification-agent-api.auremoai.site
+   VITE_API_BASE_URL=https://doc-verification-agent-api.auremoai.site
    ```
-   *Note: If the backend is running directly on port `8039` without standard Nginx domain proxying, use `http://doc-verification-agent-api.auremoai.site:8039`.*
+   *Note: If the backend is running directly on port `8039` without standard Nginx domain proxying, use `https://doc-verification-agent-api.auremoai.site:8039`.*
 
 ---
 

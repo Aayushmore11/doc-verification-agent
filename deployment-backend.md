@@ -90,11 +90,11 @@ cd /var/www/html/doc-verification-agent
    ```env
    GROQ_API_KEY=your_actual_groq_api_key_here
    DATABASE_URL=postgresql+psycopg2://postgres:1136@localhost:5432/doc_verification
-   ALLOWED_ORIGINS=http://doc-verification-agent.auremoai.site,https://doc-verification-agent.auremoai.site
+   ALLOWED_ORIGINS=https://doc-verification-agent.auremoai.site
    HOST=127.0.0.1
    PORT=8039
    ```
-   *Note: Update the ALLOWED_ORIGINS to include `http://doc-verification-agent.auremoai.site:8038` if you are hosting the frontend on port 8038.*
+   *Note: Update the ALLOWED_ORIGINS to include `https://doc-verification-agent.auremoai.site:8038` if you are hosting the frontend on port 8038.*
 
 ---
 
