@@ -80,16 +80,13 @@ This command compiles and outputs the production-ready static files into the `fr
 
 ## 5. Nginx Virtual Host Configuration
 
-We provide two configuration strategies:
-- **Option A (Recommended):** Nginx serves the frontend on the standard HTTP port (80) using the server name `doc-verification-agent.auremoai.site`.
-- **Option B (Custom Port):** Nginx serves the frontend on the custom port `8038`.
+Nginx serves the frontend on the standard HTTP port (80) using the server name `doc-verification-agent.auremoai.site`.
 
 Create a new Nginx configuration file:
 ```bash
 sudo nano /etc/nginx/sites-available/doc-verification-agent-frontend
 ```
 
-### Option A: Standard Port 80 (Recommended)
 Add the following configuration block:
 ```nginx
 server {
@@ -112,32 +109,6 @@ server {
     # Logs
     access_log /var/log/nginx/doc-verification-frontend.access.log;
     error_log /var/log/nginx/doc-verification-frontend.error.log;
-}
-```
-
-### Option B: Custom Port 8038
-Add the following configuration block:
-```nginx
-server {
-    listen 8038;
-    server_name doc-verification-agent.auremoai.site;
-
-    root /var/www/html/doc-verification-agent/frontend/dist;
-    index index.html;
-
-    # Handle React Router client-side routing
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-
-    # Enable Gzip compression
-    gzip on;
-    gzip_types text/css application/javascript image/svg+xml;
-    gzip_min_length 1000;
-
-    # Logs
-    access_log /var/log/nginx/doc-verification-frontend-8038.access.log;
-    error_log /var/log/nginx/doc-verification-frontend-8038.error.log;
 }
 ```
 

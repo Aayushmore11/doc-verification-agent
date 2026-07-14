@@ -155,7 +155,6 @@ Create the Nginx configuration file:
 sudo nano /etc/nginx/sites-available/doc-verification-agent-backend
 ```
 
-### Option A: Standard Port 80 (Recommended)
 This listens on port 80 and routes to the local application. Add the following config block:
 ```nginx
 server {
@@ -183,34 +182,6 @@ server {
 }
 ```
 
-### Option B: Custom Port 8039
-If you want Nginx to listen directly on port `8039` instead, configure it like this:
-```nginx
-server {
-    listen 8039;
-    server_name doc-verification-agent-api.auremoai.site;
-
-    location / {
-        proxy_pass http://127.0.0.1:8039;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    client_max_body_size 20M;
-
-    # Logs
-    access_log /var/log/nginx/doc-verification-backend-8039.access.log;
-    error_log /var/log/nginx/doc-verification-backend-8039.error.log;
-}
-```
-*Note: Make sure port `8039` is open in your server firewall (e.g. UFW: `sudo ufw allow 8039/tcp`).*
-
 ### Enable Nginx Config & Test
 1. Link configuration to `sites-enabled`:
    ```bash
@@ -227,7 +198,7 @@ server {
    sudo systemctl reload nginx
    ```
 
-*(Optional)* If using Let's Encrypt for SSL (HTTPS) with Option A:
+*(Optional)* If using Let's Encrypt for SSL (HTTPS):
 ```bash
 sudo certbot --nginx -d doc-verification-agent-api.auremoai.site
 ```
@@ -265,3 +236,9 @@ When you push backend updates to your repository, follow these steps to deploy:
    ```json
    {"status":"running","message":"Document Verification API"}
    ```
+
+6. Verify that the database connection is working:
+   ```bash
+   python test_db.py
+   ```
+   It should output success messages indicating the connection is successful and the `customers` table is found.

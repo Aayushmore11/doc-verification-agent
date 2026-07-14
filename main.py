@@ -1,6 +1,8 @@
 import os
 import logging
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+import traceback
 from fastapi.middleware.cors import CORSMiddleware
 from api import extraction, verification, address, history
 from dotenv import load_dotenv
@@ -16,6 +18,19 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="DOC Verification Agent")
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.error("Unhandled exception: %s", exc, exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={
+            "status": "error",
+            "error_type": type(exc).__name__,
+            "message": str(exc),
+            "traceback": traceback.format_exc()
+        }
+    )
 
 # CORS Setup - Load from ALLOWED_ORIGINS environment variable
 allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "")
