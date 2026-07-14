@@ -57,7 +57,7 @@ def find_user_by_fields(user):
             SELECT *
             FROM customers
             WHERE lower(trim(full_name)) = lower(trim(:name))
-            AND date_of_birth = CAST(:dob AS DATE)
+            AND CAST(date_of_birth AS DATE) = CAST(:dob AS DATE)
             """,
             {
                 "name": full_name,
@@ -74,7 +74,7 @@ def find_user_by_fields(user):
             """
             SELECT *
             FROM customers
-            WHERE date_of_birth = CAST(:dob AS DATE)
+            WHERE CAST(date_of_birth AS DATE) = CAST(:dob AS DATE)
             """,
             {
                 "dob": date_of_birth
