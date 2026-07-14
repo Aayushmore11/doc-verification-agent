@@ -65,7 +65,7 @@ Learning/
 - **Tesseract OCR Engine** installed on the host system.
   - The path configuration is configured in `services/ocr.py`: `C:\Program Files\Tesseract-OCR\tesseract.exe`.
 - **Node.js & npm** (for running the React UI).
-- **PostgreSQL Database** running on `localhost:5432` with a database named `DOC_verifiction_db`.
+- **PostgreSQL Database** running on `localhost:5432` with a database named `doc_verification`.
 
 ---
 
