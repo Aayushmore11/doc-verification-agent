@@ -1,0 +1,19 @@
+# Python Caches
+__pycache__/
+*.pyc
+
+# Environments
+venv/
+.venv/
+.venv
+
+# System Files
+.DS_Store
+
+# Local Configuration / Secrets
+.env
+
+# Uploaded Files & Temporary Assets
+input/temp_*
+temp_*
+input *
