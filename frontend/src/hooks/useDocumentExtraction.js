@@ -220,7 +220,7 @@ export function useDocumentExtraction() {
       if (controller.signal.aborted) return
       const message = extractErrorMessage(err)
       setError(message)
-      setPhase(PHASE.ERROR)
+      setPhase(PHASE.NEED_ADDRESS_PROOF)
       throw err
     }
   }, [result])

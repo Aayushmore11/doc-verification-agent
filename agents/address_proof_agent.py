@@ -50,6 +50,12 @@ async def orchestrate_address_proof(file: UploadFile, aadhaar_data: str):
     # ---------------- Database Verification ----------------
 
     verification_result = verify_user(aadhaar_data)
+    aadhaar = verification_result.get("aadhaar_number", "")
+
+    if aadhaar:
+        aadhaar = str(aadhaar).replace(" ", "")
+        if len(aadhaar) == 12:
+            verification_result["aadhaar_number"] = f"XXXX XXXX {aadhaar[-4:]}"
 
     # ---------------- Trust Score ----------------
 

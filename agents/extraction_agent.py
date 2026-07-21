@@ -12,6 +12,17 @@ from services.secure_qr_decoder import decode_secure_qr
 from services.comparator import compare_ocr_qr
 from services.identity_comparator import compare_identity
 
+def mask_aadhaar(aadhaar_number):
+    if not aadhaar_number:
+        return ""
+
+    aadhaar = str(aadhaar_number).replace(" ", "")
+
+    if len(aadhaar) != 12:
+        return aadhaar
+
+    return f"XXXX XXXX {aadhaar[-4:]}"
+
 logger = get_logger(__name__)
 
 async def orchestrate_extraction(aadhaar: UploadFile, pan: UploadFile):
@@ -121,13 +132,19 @@ async def orchestrate_extraction(aadhaar: UploadFile, pan: UploadFile):
 
     # QR couldn't be decoded
     # Ask frontend for Electricity Bill
+    masked_aadhaar_result = aadhaar_result.copy()
 
-    if qr_data is None:
-        aadhaar_result["pan_card_number"] = pan_result.get("pan_card_number")
-        return {
+    masked_aadhaar_result["aadhaar_number"] = mask_aadhaar(
+        aadhaar_result.get("aadhaar_number")
+    )
+
+    masked_aadhaar_result["pan_card_number"] = pan_result.get("pan_card_number")
+
+
+    return {    
             "status": "NEED_ADDRESS_PROOF",
             "message": "Secure QR could not be decoded. Please upload an Electricity Bill.",
-            "aadhaar_data": aadhaar_result,
+            "aadhaar_data": masked_aadhaar_result,
             "pan_data": pan_result,
             "identity_comparison": identity_result,
             "aadhaar_ocr_confidence": aadhaar_ocr["ocr_confidence"],
@@ -136,7 +153,7 @@ async def orchestrate_extraction(aadhaar: UploadFile, pan: UploadFile):
             "pan_image_quality": pan_image_report,
             "ocr_confidence": ocr_confidence,
             "image_quality": aadhaar_image_report,
-            "parsed_data": aadhaar_result
+            "parsed_data": masked_aadhaar_result
         }
 
     # ---------------- OCR vs QR ----------------
@@ -202,6 +219,17 @@ async def orchestrate_extraction(aadhaar: UploadFile, pan: UploadFile):
 
     if not pan_image_report.get("good_resolution"):
         risk_flags.append("Low PAN resolution image")
+
+
+    masked_aadhaar_result = aadhaar_result.copy()
+
+    masked_aadhaar_result["aadhaar_number"] = mask_aadhaar(
+        aadhaar_result.get("aadhaar_number")
+    )
+    aadhaar = verification_result.get("aadhaar_number", "")
+
+    if len(aadhaar) == 12:
+        verification_result["aadhaar_number"] = "XXXXXXXX" + aadhaar[-4:]
 
     # ---------------- Final Response ----------------
 

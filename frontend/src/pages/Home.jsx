@@ -680,14 +680,13 @@ const {
     setBillSubmitting(true)
     setBillSubmitError(null)
     try {
-      const data = await submitBill(billFile, result?.parsed_data || result?.aadhaar_data)
-      navigate('/dashboard', { state: { result: data } })
+      await submitBill(billFile, result?.parsed_data || result?.aadhaar_data)
     } catch (err) {
       setBillSubmitError(err?.message ?? 'Submission failed. Please try again.')
     } finally {
       setBillSubmitting(false)
     }
-  }, [billFile, result, submitBill, navigate])
+  }, [billFile, result, submitBill])
 
   /* ──── Visibility flags ──────────────────────────────────────────────────── */
   const canVerify = hasAadhaarPreview && hasPanPreview && !isBusy

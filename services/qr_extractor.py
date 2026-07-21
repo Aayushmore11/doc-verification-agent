@@ -19,7 +19,11 @@ def extract_qr_data(image_path):
             image.mode,
         )
 
-        qr_codes = decode(image)
+        logger.info("Starting pyzbar decode...")
+
+        '''qr_codes = decode(image)
+
+        logger.info("Finished pyzbar decode")
         logger.info("Pyzbar decode returned %d QR code(s)", len(qr_codes))
 
         if qr_codes:
@@ -30,8 +34,8 @@ def extract_qr_data(image_path):
                 "payload_length": len(raw_bytes),
                 "raw_bytes": raw_bytes.hex(),
                 "debug": "pyzbar"
-            }
-                    
+            }'''
+        logger.info("Skipping pyzbar due to compatibility issue")
         
         logger.info("Pyzbar did not find a QR code, trying OpenCV fallback")
         image_cv = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
