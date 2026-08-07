@@ -67,3 +67,16 @@ def validate_aadhaar(aadhaar):
         return False
 
     return True
+
+def validate_voter_id(voter_id: str) -> bool:
+    if not voter_id:
+        return False
+    pattern = r'^[A-Z]{3}[0-9]{7}$'
+    return bool(re.match(pattern, voter_id))
+
+
+def validate_passport(passport_number: str) -> bool:
+    if not passport_number:
+        return False
+    pattern = r'^[A-Z][0-9]{7}$'
+    return bool(re.match(pattern, passport_number))

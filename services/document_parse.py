@@ -41,6 +41,33 @@ def extract_pan_fields(text):
     }
 
 
+def extract_voter_id_fields(text):
+
+    voter_id_match = re.search(
+        r"\b[A-Z]{3}[0-9]{7}\b",
+        text
+    )
+
+    return {
+        "voter_id_number":
+            voter_id_match.group()
+            if voter_id_match else None
+    }
+
+
+def extract_passport_fields(text):
+
+    passport_match = re.search(
+        r"\b[A-Z][0-9]{4}\s?[0-9]{3}\b",
+        text
+    )
+
+    return {
+        "passport_number":
+            passport_match.group().replace(" ", "")
+            if passport_match else None
+    }
+
 
 def parse_document(text):
 
@@ -79,6 +106,34 @@ def parse_document(text):
 
         return {
             "document_type": "aadhaar",
+            **regex_data,
+            **llm_data
+        }
+
+    # ---------------- Voter ID ----------------
+
+    if re.search(r"\b[A-Z]{3}[0-9]{7}\b", text):
+
+        regex_data = extract_voter_id_fields(text)
+
+        llm_data = extract_person_details(text)
+
+        return {
+            "document_type": "voter_id",
+            **regex_data,
+            **llm_data
+        }
+
+    # ---------------- Passport ----------------
+
+    if re.search(r"\b[A-Z][0-9]{4}\s?[0-9]{3}\b", text):
+
+        regex_data = extract_passport_fields(text)
+
+        llm_data = extract_person_details(text)
+
+        return {
+            "document_type": "passport",
             **regex_data,
             **llm_data
         }

@@ -6,6 +6,10 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [
     react(),
-    tailwindcss(),
+    tailwindcss(), // Keeps your Tailwind CSS styles working
   ],
+  build: {
+    // Correctly nested limit parameter
+    chunkSizeWarningLimit: 1000,
+  },
 })
