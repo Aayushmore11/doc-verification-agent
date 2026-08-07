@@ -1,21 +1,26 @@
 /**
  * Navbar.jsx — Shared light-themed navigation bar
- * Used by both the Home page and the Dashboard.
+ *
+ * Route → Tab mapping (updated):
+ *   /            — homepage (Loan Verify flow) — logo links here, no dedicated tab
+ *   /quick-kyc   — "Quick KYC" tab (legacy Aadhaar+PAN single-doc flow)
+ *   /dashboard   — "Dashboard" tab
+ *   /history     — "History" tab
  */
 
 import { useNavigate, useLocation } from 'react-router-dom'
-import { ShieldCheck, LayoutDashboard, History, ChevronDown } from 'lucide-react'
+import { ShieldCheck, LayoutDashboard, History, ChevronDown, ScanLine } from 'lucide-react'
 
 export default function Navbar() {
   const navigate  = useNavigate()
   const location  = useLocation()
-  const onDash    = location.pathname === '/dashboard'
+  const path      = location.pathname
 
   return (
     <header className="fixed top-0 inset-x-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
 
-        {/* Logo */}
+        {/* Logo — always links to / (the Loan Verify homepage) */}
         <a href="/" className="flex items-center gap-2.5" aria-label="VerifyAI Home">
           <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-600 to-blue-600
                           flex items-center justify-center shadow-lg shadow-indigo-200/60">
@@ -34,13 +39,28 @@ export default function Navbar() {
           Document Verification Portal
         </span>
 
-        {/* Right actions */}
+        {/* Right nav actions */}
         <div className="flex items-center gap-2">
+
+          {/* Quick KYC — legacy Aadhaar+PAN single-doc flow at /quick-kyc */}
+          <button
+            id="nav-quick-kyc"
+            onClick={() => navigate('/quick-kyc')}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl text-sm font-medium transition-colors
+                       ${path === '/quick-kyc'
+                         ? 'text-indigo-700 bg-indigo-50 font-semibold'
+                         : 'text-slate-600 hover:text-indigo-700 hover:bg-indigo-50'}`}
+          >
+            <ScanLine className="w-4 h-4" />
+            <span className="hidden sm:block">Quick KYC</span>
+          </button>
+
+          {/* Dashboard */}
           <button
             id="nav-dashboard"
             onClick={() => navigate('/dashboard')}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl text-sm font-medium transition-colors
-                       ${onDash
+                       ${path === '/dashboard'
                          ? 'text-indigo-700 bg-indigo-50 font-semibold'
                          : 'text-slate-600 hover:text-indigo-700 hover:bg-indigo-50'}`}
           >
@@ -48,11 +68,12 @@ export default function Navbar() {
             <span className="hidden sm:block">Dashboard</span>
           </button>
 
+          {/* History */}
           <button
             id="nav-history"
             onClick={() => navigate('/history')}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl text-sm font-medium transition-colors
-                       ${location.pathname === '/history'
+                       ${path === '/history'
                          ? 'text-indigo-700 bg-indigo-50 font-semibold'
                          : 'text-slate-600 hover:text-indigo-700 hover:bg-indigo-50'}`}
           >
@@ -77,3 +98,4 @@ export default function Navbar() {
     </header>
   )
 }
+

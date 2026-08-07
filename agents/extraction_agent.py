@@ -19,6 +19,7 @@ from services.comparator import compare_ocr_qr
 from services.identity_comparator import compare_identity
 from services.llm_extractor import extract_person_details
 from services.loan_requirements import get_required_docs, get_cross_checks
+from utils.change_logger import log_change
 
 logger = get_logger(__name__)
 
@@ -422,6 +423,21 @@ async def orchestrate_extraction_v2(loan_type: str, documents: dict[str, UploadF
             risk_flags.append(f"Low resolution {doc_type} image")
         if result["ocr"]["ocr_confidence"] < 70:
             risk_flags.append(f"Low OCR confidence on {doc_type}")
+
+    # ---------------- Change Log ----------------
+            
+
+    log_change(
+        change_type="verification_run",
+        description=f"Processed {loan_type} verification",
+        metadata={
+            "loan_type": loan_type,
+            "doc_types": list(documents.keys()),
+            "verification_status": verification_result.get("status"),
+            "trust_score": trust_score,
+            "identity_mismatch": cross_check_results.get("identity_comparison", {}).get("overall_mismatch_detected")
+        }
+    )
 
     return {
         "loan_type": loan_type,

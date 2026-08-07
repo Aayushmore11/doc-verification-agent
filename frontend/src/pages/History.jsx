@@ -1,6 +1,15 @@
 /**
  * History.jsx — KYC Verification History page
- * Displays past verification records stored in LocalStorage.
+ *
+ * Displays past verification records stored in localStorage (key: 'kyc_history').
+ *
+ * Supports two record shapes in a unified list:
+ *   1. Quick KYC (old flow) — has result.parsed_data.full_name, result.parsed_data.document_type
+ *   2. Loan Verify (new flow) — has result.combined_identity.full_name, loanType, docTypes
+ *
+ * Optional fields added by the Loan Verify flow:
+ *   item.loanType   — e.g. "car_loan"
+ *   item.docTypes   — e.g. ["aadhaar", "pan", "voter_id"]
  */
 
 import { useState, useEffect } from 'react'
@@ -12,6 +21,15 @@ import {
 import Navbar from '../components/Navbar/Navbar'
 import Footer from '../components/Footer/Footer'
 import { formatFileSize, truncate } from '../utils/formatters'
+
+/** Friendly labels for loan types — used in the history card badge */
+const LOAN_TYPE_LABELS = {
+  personal_loan: 'Personal Loan',
+  car_loan:      'Car Loan',
+  tractor_loan:  'Tractor Loan',
+  cv_loan:       'Commercial Vehicle Loan',
+  msme_loan:     'MSME Loan',
+}
 
 export default function HistoryPage() {
   const navigate = useNavigate()
@@ -67,12 +85,31 @@ export default function HistoryPage() {
   }
 
   // Filter history based on search query
+  // Covers both Quick KYC fields (parsed_data) and Loan Verify fields (loanType, docTypes)
   const filteredHistory = history.filter(item => {
-    const fileName = item.fileName.toLowerCase()
-    const name = (item.result?.parsed_data?.full_name || item.result?.parsed_data?.name || '').toLowerCase()
-    const docType = (item.result?.parsed_data?.document_type || '').toLowerCase()
+    const fileName    = item.fileName.toLowerCase()
+    /* Quick KYC: name lives in parsed_data; Loan Verify: name lives in combined_identity */
+    const name        = (
+      item.result?.parsed_data?.full_name ||
+      item.result?.parsed_data?.name ||
+      item.result?.combined_identity?.full_name ||
+      ''
+    ).toLowerCase()
+    const docType     = (item.result?.parsed_data?.document_type || '').toLowerCase()
+    /* Loan Verify extra fields */
+    const loanType    = (item.loanType || '').toLowerCase()
+    const loanLabel   = (LOAN_TYPE_LABELS[item.loanType] || '').toLowerCase()
+    const docTypesStr = (item.docTypes || []).join(' ').toLowerCase()
+
     const query = searchQuery.toLowerCase()
-    return fileName.includes(query) || name.includes(query) || docType.includes(query)
+    return (
+      fileName.includes(query)    ||
+      name.includes(query)        ||
+      docType.includes(query)     ||
+      loanType.includes(query)    ||
+      loanLabel.includes(query)   ||
+      docTypesStr.includes(query)
+    )
   })
 
   return (
@@ -153,7 +190,8 @@ export default function HistoryPage() {
               <div className="space-y-2">
                 <h3 className="text-lg font-bold text-slate-800">No verification history yet</h3>
                 <p className="text-sm text-slate-400 max-w-sm leading-relaxed">
-                  Upload an Aadhaar card on the homepage to view OCR extraction results, QR signatures, and trust scores.
+                  Complete a Loan Verify or Quick KYC verification to see OCR results,
+                  identity comparisons, and trust scores here.
                 </p>
               </div>
               <button
@@ -175,9 +213,21 @@ export default function HistoryPage() {
             <div className="space-y-3">
               <AnimatePresence>
                 {filteredHistory.map((item) => {
-                  const name = item.result?.parsed_data?.full_name || item.result?.parsed_data?.name || 'Unknown'
-                  const score = item.result?.trust_score ?? 0
-                  const docType = item.result?.parsed_data?.document_type ?? 'Aadhaar'
+                  /*
+                   * Resolve display name — Quick KYC stores it in parsed_data,
+                   * Loan Verify stores it in combined_identity.
+                   */
+                  const name = (
+                    item.result?.parsed_data?.full_name ||
+                    item.result?.parsed_data?.name ||
+                    item.result?.combined_identity?.full_name ||
+                    'Unknown'
+                  )
+                  const score   = item.result?.trust_score ?? 0
+                  /* For Quick KYC use parsed document_type; for Loan Verify show loan type label */
+                  const docType = item.loanType
+                    ? (LOAN_TYPE_LABELS[item.loanType] || item.loanType)
+                    : (item.result?.parsed_data?.document_type ?? 'Aadhaar')
                   
                   const statusColors = 
                     item.status === 'Verified' 
@@ -207,9 +257,16 @@ export default function HistoryPage() {
                             <h4 className="text-sm font-bold text-slate-800 truncate max-w-[200px] sm:max-w-xs" title={name}>
                               {name}
                             </h4>
+                            {/* doc type or loan type badge */}
                             <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-500 uppercase tracking-wide">
                               {docType}
                             </span>
+                            {/* Show individual doc types for loan-verify entries */}
+                            {item.docTypes && item.docTypes.map(dt => (
+                              <span key={dt} className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100">
+                                {dt.replace('_', ' ')}
+                              </span>
+                            ))}
                           </div>
                           
                           <div className="flex items-center gap-3 text-xs text-slate-400 flex-wrap">

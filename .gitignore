@@ -13,7 +13,10 @@ venv/
 # Local Configuration / Secrets
 .env
 
-# Uploaded Files & Temporary Assets
-input/temp_*
-temp_*
-input *
+# Uploaded Files & Temporary Assets (entire folder, not just temp_ prefixed files)
+input/
+
+# Change/activity logs (contains real extracted PII from test runs)
+logs/
+
+response.json
